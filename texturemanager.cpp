@@ -5,6 +5,8 @@
 #include <string>
 #include <stdio.h>
 
+TextureManager* TextureManager::instance = 0;
+
 bool TextureManager::textureexists(std::string name)
 {
         std::map<std::string,Texture*>::iterator itt = textures.begin();
@@ -24,17 +26,17 @@ bool TextureManager::loadtexture(std::string fname, std::string name)
         return true;
 }
 
-TextureManager::TextureManager()
-{
-}
-
-TextureManager::~TextureManager()
+void TextureManager::cleanup()
 {
         std::map<std::string,Texture*>::iterator itt; 
         Texture* texture;
         while ( !textures.empty() )
         {
+                if ( itt == textures.end() )
+                        printf("wtf is going on\n");
                 itt=textures.begin();
+                std::string key = itt->first;
+                printf("Deleting %s\n", key.c_str());
                 texture=itt->second;
                 delete texture;
                 texture=0;
@@ -42,10 +44,38 @@ TextureManager::~TextureManager()
         }
 }
 
+TextureManager::TextureManager()
+{
+}
+
+TextureManager::~TextureManager()
+{
+        cleanup();
+        // set instance to zeeerooo
+        instance=0;
+}
+
 int TextureManager::gettex(std::string name)
 {
         if ( !textureexists(name) )
          return 0;
         return textures[name]->getid();
+}
+void TextureManager::removeTexture(std::map<std::string, Texture*>::iterator itt)
+{
+        if ( itt != textures.end() ){
+                Texture* tex = itt->second;
+                printf("removeTexture: Deleting %s\n", itt->first.c_str());
+                delete tex;
+                tex=0;
+                textures.erase(itt);
+       }
+}
+void TextureManager::removeTexture(std::string name)
+{
+        if ( textureexists(name) ) {
+                std::map<std::string, Texture*>::iterator itt = textures.find(name);
+                removeTexture(itt);
+        }
 }
 

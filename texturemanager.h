@@ -9,13 +9,25 @@
 class TextureManager
 {
         public:
-                TextureManager();
-                ~TextureManager();
+                
+               static TextureManager* getTextureManager()
+                {
+                        if ( instance == 0 )
+                                instance=new TextureManager();
+                        return instance;
+                }
                 bool loadtexture(std::string fname, std::string name);
+                void removeTexture(std::string name);
+                void removeTexture(std::map<std::string,Texture*>::iterator itt);
                 int  gettex(std::string name);
                 bool textureexists(std::string name);
+                void cleanup();
         private:
-                std::map<std::string, Texture*> textures;        
+                // singleton
+                TextureManager();
+                ~TextureManager();
+                std::map<std::string, Texture*> textures;  
+                static TextureManager * instance;
 };
 
 #endif
